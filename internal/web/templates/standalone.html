@@ -1,0 +1,62 @@
+{{define "standalone.html"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} — {{.PeerName}} — Rust Control Center</title>
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/rdclient/rdgui-standalone.css">
+<link rel="stylesheet" href="/static/rdclient-overrides.css">
+<link rel="stylesheet" href="/static/standalone.css">
+</head>
+<body data-peer-id="{{.PeerID}}"
+      data-saved-hash="{{.SavedHash}}" data-can-save="{{if .CanSave}}1{{else}}0{{end}}">
+  <header class="rdgui-bar">
+    <h1><img class="brand" src="/static/logo.svg" width="24" height="24" alt="">{{.Title}} <span class="rdgui-peer">{{.PeerName}}</span></h1>
+    <a class="rdgui-back" href="/" title="Back to devices" aria-label="Back to devices">
+      {{template "icon-devices"}}</a>
+  </header>
+
+  <form id="rdgui-login" class="rdgui-login">
+    <h2>Connect to {{.PeerName}}</h2>
+    <p class="rdgui-note">
+      {{.Blurb}} The remote screen is never requested, so nothing of the
+      desktop is shown.
+    </p>
+    <label for="rdgui-password">Device password</label>
+    <input type="password" id="rdgui-password" autocomplete="off" autofocus>
+    <p class="rdgui-hint">
+      Leave empty to ask the person at the remote keyboard to approve instead.
+      A one-time password shown on the device rotates after a single use.
+    </p>
+    {{if .CanSave}}
+    <label class="rdgui-check">
+      <input type="checkbox" id="rdgui-remember">
+      Remember this device's password
+    </label>
+    <p class="rdgui-hint">
+      Stored on this server for every browser you sign in from, as the
+      per-device credential the RustDesk client itself caches &mdash; never the
+      password you type.
+    </p>
+    {{end}}
+    <button type="submit">Connect</button>
+  </form>
+
+  <div id="rdgui-resume" class="rdgui-login" hidden>
+    <h2>Connecting to {{.PeerName}}</h2>
+    <p class="rdgui-note">Using this device's saved password.</p>
+    <p class="rdgui-hint"><a href="?id={{.PeerID}}&amp;ask=1">Use a different password</a></p>
+  </div>
+
+  <main id="rdgui-stage" class="rdgui-stage" hidden>
+    <div id="rd-standalone" class="rdgui-mount"></div>
+  </main>
+
+  <div id="rdgui-toast" class="rdgui-toast" role="status" hidden></div>
+
+  <script src="/static/rdclient-compat.js"></script>
+  <script src="/rdclient/config.js"></script>
+  <script type="module" src="/rdclient/rdgui-standalone.js"></script>
+</body>
+</html>{{end}}

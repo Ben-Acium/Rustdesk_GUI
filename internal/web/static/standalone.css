@@ -1,0 +1,138 @@
+/* Chrome around the upstream panels on the files-only and terminal-only pages.
+   Their own stylesheet ships the --rd-* tokens; reusing them keeps this page
+   looking like one product rather than a frame bolted around someone else's
+   component. Loaded after theirs, so equal-specificity rules here win. */
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--rd-bg, #0b0e14);
+  color: var(--rd-fg, #e7ebf3);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+body { display: flex; flex-direction: column; }
+
+/* Their own guard is scoped to #rd-root, which this page does not have. */
+[hidden] { display: none !important; }
+
+.rdgui-bar {
+  flex: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 10px 16px;
+  background: var(--rd-surface, #141a24);
+  border-bottom: 1px solid var(--rd-border, #2a3444);
+}
+.rdgui-bar h1 {
+  display: flex; align-items: center; gap: 9px;
+  margin: 0; font-size: 15px; font-weight: 600;
+}
+.rdgui-bar .brand { display: block; flex: none; border-radius: 6px; }
+.rdgui-peer { color: var(--rd-muted, #8d97aa); font-weight: 400; margin-left: 6px; }
+/* Back to the device list, styled to match the same control on the browser
+   client's toolbar. It is already in flow at the end of this bar, so unlike
+   that one it needs no repositioning — only the matching shape. */
+.rdgui-back {
+  flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  border: 1px solid var(--rd-border, #2a3444);
+  background: var(--rd-surface-2, #1d2532);
+  color: var(--rd-muted, #8d97aa);
+  text-decoration: none;
+}
+.rdgui-back:hover {
+  color: var(--rd-fg, #e7ebf3);
+  border-color: var(--rd-surface-3, #242e3d);
+}
+.rdgui-back:focus-visible { outline: 2px solid var(--rd-accent, #5b9bf0); outline-offset: 2px; }
+
+.rdgui-login {
+  margin: auto; padding: 28px; width: 100%; max-width: 380px;
+  background: var(--rd-surface, #141a24);
+  border: 1px solid var(--rd-border, #2a3444);
+  border-radius: 16px;
+}
+.rdgui-login h2 { margin: 0 0 10px; font-size: 17px; }
+.rdgui-note, .rdgui-hint { color: var(--rd-muted, #8d97aa); font-size: 13px; }
+.rdgui-note { margin: 0 0 18px; }
+.rdgui-hint { margin: 8px 0 16px; }
+.rdgui-login label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--rd-muted, #8d97aa); }
+.rdgui-login input {
+  width: 100%; box-sizing: border-box; padding: 9px 10px; font: inherit;
+  color: var(--rd-fg, #e7ebf3);
+  background: var(--rd-bg, #0b0e14);
+  border: 1px solid var(--rd-border, #2a3444);
+  border-radius: 8px;
+}
+.rdgui-login button {
+  width: 100%; padding: 9px; border: 0; border-radius: 8px; cursor: pointer;
+  background: var(--rd-accent, #e2652e); color: var(--rd-accent-fg, #fff);
+  font: inherit; font-weight: 600;
+}
+.rdgui-login button:hover { background: var(--rd-accent-2, #c9531f); }
+input:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--rd-accent, #e2652e); outline-offset: 2px;
+}
+
+.rdgui-stage { flex: 1 1 auto; min-height: 0; position: relative; }
+.rdgui-mount { position: absolute; inset: 0; }
+
+/* --- adapting a panel built to float over a live desktop ------------------
+   The file panel is designed to sit on top of the remote screen, so it lets a
+   little of what is behind it show through. With no desktop here, that exposes
+   this page instead and the panel reads as washed out. Make it opaque.
+
+   Upstream: color-mix(in srgb, var(--rd-bg) 97%, transparent) */
+#rd-ft-overlay { background: var(--rd-bg, #0b0e14); }
+
+/* --- the terminal --------------------------------------------------------
+   Ours, not upstream's; see webclient-ext/rdgui-terminal.ts. It fills the page
+   rather than floating in a card, because the page holds nothing else. */
+.rdgui-term {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--rd-bg, #0b0e14);
+}
+.rdgui-term-status {
+  flex: none; margin: 0; padding: 7px 14px;
+  font-size: 13px; color: var(--rd-muted, #8d97aa);
+  background: var(--rd-surface, #141a24);
+  border-bottom: 1px solid var(--rd-border, #2a3444);
+}
+.rdgui-term-status[hidden] { display: none; }
+
+/* xterm measures itself against this box, so it must have a real size before
+   fit() runs — hence a flex child with min-height rather than height:auto. */
+.rdgui-term-screen {
+  flex: 1 1 auto; min-height: 0;
+  padding: 6px 0 6px 8px;
+}
+.rdgui-term-screen .xterm { height: 100%; }
+
+.rdgui-toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  padding: 9px 14px; border-radius: 8px; font-size: 13px;
+  background: var(--rd-surface-3, #242e3d); color: var(--rd-fg, #e7ebf3);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.4);
+}
+.rdgui-error {
+  margin: auto; padding: 14px 16px; max-width: 480px; border-radius: 8px;
+  background: color-mix(in srgb, var(--rd-danger, #ff5d5d) 14%, transparent);
+  color: var(--rd-danger, #ff5d5d);
+  border: 1px solid color-mix(in srgb, var(--rd-danger, #ff5d5d) 35%, transparent);
+}
+
+/* The remember-password checkbox sits between the hint and the button, so it
+   needs to read as a control rather than another line of prose. Scoped to
+   .rdgui-login so it outranks that block's `label { display: block }`, which
+   otherwise drops the box onto its own line above the text. */
+.rdgui-login label.rdgui-check {
+  display: flex; align-items: center; gap: 8px;
+  margin: 2px 0 6px; font-size: 13px;
+  color: var(--rd-fg, #e7ebf3);
+}
+.rdgui-login label.rdgui-check input {
+  width: auto; margin: 0; flex: none;
+}
+#rdgui-resume .rdgui-hint a { color: var(--rd-accent, #5b9bf0); }

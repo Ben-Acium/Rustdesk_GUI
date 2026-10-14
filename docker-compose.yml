@@ -1,0 +1,57 @@
+# Runs as its own Compose project alongside the existing hbbs/hbbr stack, so
+# that stack's file does not need to be touched. To merge it in instead, copy
+# the `rustdeskgui` service into your RustDesk compose file, change the
+# /hbbs-data volume to `./data:/hbbs-data`, and add `depends_on: [hbbs]`.
+#
+# The RustDesk stack uses network_mode: host, so this service does too, and
+# publishes its UI on :8443 directly. With host networking there is no ports:
+# mapping to make.
+#
+# RDGUI_HBBS_ADDR must be this host's LAN IP, NOT 127.0.0.1: hbbs hands loopback
+# connections on the NAT port to an admin console handler and never answers a
+# presence query, so loopback silently reports every device offline. The service
+# refuses to start on a loopback address. See README > Troubleshooting.
+services:
+  rustdeskgui:
+    container_name: rustdeskgui
+    build: .
+    network_mode: "host"
+    environment:
+      RDGUI_LISTEN: "${RDGUI_LISTEN:-:8443}"
+      RDGUI_HBBS_ADDR: "${RDGUI_HBBS_ADDR:?set this in .env to <host-lan-ip>:21115}"
+      RDGUI_HBBS_DB: "/hbbs-data/db_v2.sqlite3"
+      RDGUI_DATA_DIR: "/data"
+      RDGUI_POLL_INTERVAL: "${RDGUI_POLL_INTERVAL:-20s}"
+      # Browser client. The rendezvous and relay WebSockets are proxied through
+      # this service, so the browser only ever talks to :8443 and these two
+      # addresses stay private to the host.
+      RDGUI_HBBS_WS: "${RDGUI_HBBS_WS:-127.0.0.1:21118}"
+      RDGUI_HBBR_WS: "${RDGUI_HBBR_WS:-127.0.0.1:21119}"
+      # The address you type in the browser. It is added to the self-signed
+      # certificate, which matters because a browser will not prompt to accept
+      # a certificate for a WebSocket - it just fails.
+      RDGUI_PUBLIC_HOST: "${RDGUI_PUBLIC_HOST:-}"
+      # Generate with: docker compose run --rm rustdeskgui hash
+      RDGUI_ADMIN_PASSWORD_HASH: "${RDGUI_ADMIN_PASSWORD_HASH:?set this in .env}"
+      # Encrypts saved device passwords. Unset leaves that feature off.
+      # Generate with: docker compose run --rm rustdeskgui genkey
+      RDGUI_SECRET_KEY: "${RDGUI_SECRET_KEY:-}"
+      # Intel locates a device from the public address hbbs recorded for it, by
+      # asking ip-api.com. Set to "off" to keep every lookup local; devices
+      # still report their own time zone. See README > Intel > Location.
+      RDGUI_GEOIP_URL: "${RDGUI_GEOIP_URL:-}"
+      # Optional: point at a real certificate instead of the self-signed default.
+      # RDGUI_TLS_CERT: "/data/fullchain.pem"
+      # RDGUI_TLS_KEY:  "/data/privkey.pem"
+    volumes:
+      # hbbs's own data directory. Read-write is required: SQLite cannot open a
+      # WAL database without creating the -shm sidecar, even for reading. The
+      # application opens it query_only and never writes.
+      - ${RDGUI_HBBS_DATA:-../rustdesk-server/data}:/hbbs-data
+      # This application's state: aliases, notes, presence history, session key,
+      # self-signed certificate. Deliberately separate from hbbs's data.
+      - rustdeskgui-data:/data
+    restart: unless-stopped
+
+volumes:
+  rustdeskgui-data:

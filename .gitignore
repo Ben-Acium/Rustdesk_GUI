@@ -1,0 +1,7 @@
+creds.txt
+*.pem
+*.key
+.env
+/rustdeskgui
+/rdprobe
+*.pid

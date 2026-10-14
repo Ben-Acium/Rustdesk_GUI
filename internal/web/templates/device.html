@@ -1,0 +1,90 @@
+{{define "device.html"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Name}} — Rust Control Center</title>
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/device.css">
+</head>
+<body data-csrf="{{.CSRF}}" data-peer-id="{{.Device.ID}}"
+      data-saved-hash="{{.SavedHash}}" data-can-save="{{if .CanSave}}1{{else}}0{{end}}"
+      data-webclient="{{if .WebClient}}1{{else}}0{{end}}"
+      data-archived="{{if .Device.Archived}}1{{else}}0{{end}}">
+  <header class="topbar">
+    <h1><img class="brand" src="/static/logo.svg" width="26" height="26" alt="">Rust Control Center</h1>
+    <form method="post" action="/logout"><button class="link" type="submit">Sign out</button></form>
+  </header>
+
+  <main>
+    <a class="back" href="/">{{template "icon-devices"}}<span>Devices</span></a>
+
+    {{if .Device.Archived}}
+    <p class="banner" role="status">
+      This device is archived and hidden from the list. Everything here still works.
+    </p>
+    {{end}}
+
+    <section class="card head{{if .Device.Online}} online{{end}}">
+      <div class="head-main">
+        <span class="dot" title="{{if .Device.Online}}Online{{else}}Offline{{end}}" aria-hidden="true"></span>
+        <div class="identity">
+          <h2 id="device-name">{{.Name}}</h2>
+          <p class="meta">
+            <span class="id">{{formatID .Device.ID}}</span>
+            {{if .Device.IP}}<span class="sep">·</span><span>{{.Device.IP}}</span>{{end}}
+            <span class="sep">·</span>
+            <span>{{if .Device.Online}}online now{{else if .Device.LastSeen}}last seen {{relTime .Device.LastSeen}}{{else}}not seen yet{{end}}</span>
+          </p>
+          {{if .Device.Note}}<p class="note" id="device-note">{{.Device.Note}}</p>{{end}}
+        </div>
+      </div>
+      <div class="actions">
+        {{if .WebClient}}
+        <a class="connect" href="/client?id={{.Device.ID}}" title="Control this device in your browser">Browser</a>
+        <a class="connect ghost-link" href="/files?id={{.Device.ID}}" title="Files only — the desktop is never shown">Files</a>
+        <a class="connect ghost-link" href="/terminal?id={{.Device.ID}}" title="Terminal only — the desktop is never shown">Terminal</a>
+        {{end}}
+        <a class="connect ghost-link" href="{{deviceURI .Device.ID}}" title="Open in your RustDesk app">App</a>
+      </div>
+      <div class="actions secondary">
+        <button class="ghost" data-action="rename">Rename</button>
+        <button class="ghost" data-action="archive">{{if .Device.Archived}}Restore{{else}}Archive{{end}}</button>
+        <button class="ghost danger" data-action="forget">Erase record</button>
+      </div>
+    </section>
+
+    <section class="card" id="intel-card">
+      <div class="card-head">
+        <h2>Intel</h2>
+        <div class="card-actions">
+          {{if .WebClient}}
+          <button id="intel-run" class="connect">Collect intel</button>
+          {{end}}
+          <button id="intel-discard" class="ghost" hidden>Discard</button>
+        </div>
+      </div>
+      <p class="meta" id="intel-status">Loading…</p>
+      <ol class="progress" id="intel-progress" hidden aria-live="polite"></ol>
+      <div id="intel-body"></div>
+      {{if not .WebClient}}
+      <p class="meta">The browser client is not configured on this server, so Intel
+         cannot open a connection to collect anything.</p>
+      {{end}}
+    </section>
+
+    <section class="card" id="history-card">
+      <div class="card-head"><h2>Presence</h2></div>
+      <div id="history-body"><p class="meta">Loading…</p></div>
+    </section>
+  </main>
+
+  <dialog id="dialog"></dialog>
+  {{if .WebClient}}
+  <script src="/static/rdclient-compat.js"></script>
+  <script src="/rdclient/config.js"></script>
+  {{end}}
+  <script src="/static/device.js"></script>
+</body>
+</html>{{end}}

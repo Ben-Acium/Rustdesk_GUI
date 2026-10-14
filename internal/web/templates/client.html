@@ -1,0 +1,59 @@
+{{define "client.html"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.PeerName}} — Rust Control Center</title>
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/rdclient/app.css">
+<link rel="stylesheet" href="/static/rdclient-overrides.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #14171a; color: #e8eaed;
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #rd-root { height: 100%; }
+  .rd-banner { display: flex; gap: 10px; align-items: center; justify-content: center;
+    padding: 7px 14px; font-size: 13px; background: #4a3505; color: #ffd98a;
+    border-bottom: 1px solid #6b4d08; }
+  .rd-banner a { color: inherit; }
+  .rd-hint { margin: 0; padding: 7px 14px; font-size: 13px; text-align: center;
+    background: #1c2024; color: #9099a3; border-bottom: 1px solid #2c3238; }
+  .rd-hint strong { color: #e8eaed; font-weight: 600; }
+  .rd-codec-warn { margin: 0; padding: 9px 16px; font-size: 13px; line-height: 1.5;
+    background: #4a1f05; color: #ffc9a0; border-bottom: 1px solid #6b3408; }
+  .rd-codec-warn code { background: #00000040; padding: 1px 5px; border-radius: 4px; }
+  /* Back to the device list. The compat script moves this into the client's
+     own toolbar once that renders; until then — and if the bundle never loads
+     at all — it floats at the top left, where there is nothing yet to cover. */
+  .rd-back { position: fixed; left: 10px; top: 11px; z-index: 50;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; flex: none;
+    border-radius: 9px; border: 1px solid #2c3238; background: #1c2024;
+    color: #9099a3; text-decoration: none; }
+  .rd-back:hover { color: #e8eaed; border-color: #3f4854; }
+  .rd-back:focus-visible { outline: 2px solid #5b9bf0; outline-offset: 2px; }
+  .rd-back--docked { position: static; }
+</style>
+</head>
+<body>
+  {{if .Insecure}}
+  <p class="rd-banner" role="alert">
+    Served over plain HTTP — the page can be tampered with in transit.
+    Use it only on a network you trust. See the README for the HTTPS setup.
+  </p>
+  {{end}}
+  <p class="rd-hint">
+    Using the <strong>one-time password</strong> shown on the device? It rotates after a
+    single use — re-read it immediately before connecting. For repeat access set a
+    permanent password on the device, or leave the password box empty to ask the
+    person at the keyboard to approve the session.
+  </p>
+  <a class="rd-back" href="/" title="Back to devices" aria-label="Back to devices">
+    {{template "icon-devices"}}</a>
+  <div id="rd-root" data-peer-id="{{.PeerID}}"
+       data-saved-hash="{{.SavedHash}}" data-can-save="{{if .CanSave}}1{{else}}0{{end}}"></div>
+  <script src="/static/rdclient-compat.js"></script>
+  <script src="/static/client-check.js"></script>
+  <script src="/rdclient/config.js"></script>
+  <script type="module" src="/rdclient/app.js"></script>
+</body>
+</html>{{end}}

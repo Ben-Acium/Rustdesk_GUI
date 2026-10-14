@@ -1,0 +1,81 @@
+{{define "index.html"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust Control Center</title>
+<link rel="icon" href="/static/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body data-csrf="{{.CSRF}}" data-webclient="{{if .WebClient}}1{{else}}0{{end}}">
+  <header class="topbar">
+    <h1><img class="brand" src="/static/logo.svg" width="26" height="26" alt="">Rust Control Center</h1>
+    <form method="post" action="/logout"><button class="link" type="submit">Sign out</button></form>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <p class="counts"><strong id="count-total">{{.Total}}</strong> devices ·
+         <strong id="count-online">{{.Snapshot.Online}}</strong> online</p>
+      <div class="toolbar-right">
+        <label class="show-archived" id="archived-toggle"{{if not .Snapshot.Archived}} hidden{{end}}>
+          <input type="checkbox" id="show-archived">
+          Show <span id="count-archived">{{.Snapshot.Archived}}</span> archived
+        </label>
+        <input type="search" id="filter" placeholder="Search name, ID or IP" aria-label="Search devices">
+      </div>
+    </div>
+
+    {{if .Snapshot.Err}}
+      <p class="error" role="alert">Last refresh failed: {{.Snapshot.Err}} — the list below may be stale.</p>
+    {{end}}
+
+    {{if not .Snapshot.Devices}}
+      <div class="empty">
+        <h2>No devices yet</h2>
+        <p>No RustDesk client has registered with this server. A device appears here
+           the first time it connects with this server configured as its ID server.</p>
+      </div>
+    {{end}}
+
+    <ul class="devices" id="devices">
+      {{range .Snapshot.Devices}}
+      <li class="device{{if .Online}} online{{end}}{{if .Archived}} archived{{end}}"
+          data-id="{{.ID}}" data-alias="{{.Alias}}" data-archived="{{if .Archived}}1{{else}}0{{end}}"
+          data-search="{{.Alias}} {{.Hostname}} {{.ID}} {{.IP}} {{.Note}}">
+        <span class="dot" title="{{if .Online}}Online{{else}}Offline{{end}}" aria-hidden="true"></span>
+        <div class="identity">
+          <a class="alias{{if not .Name}} unnamed{{end}}" href="/device/{{.ID}}"
+             title="Everything known about this device">{{displayName .}}{{if .IP}} <span class="addr">({{.IP}})</span>{{end}}</a>
+          <p class="meta">
+            {{if .Name}}<span class="id">{{formatID .ID}}</span><span class="sep">·</span>{{end}}
+            <span class="seen">{{if .Online}}online now{{else if .LastSeen}}last seen {{relTime .LastSeen}}{{else}}not seen yet{{end}}</span>
+            {{if index $.HasIntel .ID}}<span class="sep">·</span><span class="has-intel">intel</span>{{end}}
+          </p>
+          {{if .Note}}<p class="note">{{.Note}}</p>{{end}}
+        </div>
+        <div class="actions">
+          {{if $.WebClient}}
+          <a class="connect" href="/client?id={{.ID}}"
+             title="Control this device in your browser">Browser</a>
+          <a class="connect ghost-link" href="/files?id={{.ID}}"
+             title="Files only — the desktop is never shown">Files</a>
+          <a class="connect ghost-link" href="/terminal?id={{.ID}}"
+             title="Terminal only — the desktop is never shown">Terminal</a>
+          {{end}}
+          <a class="connect ghost-link" href="{{deviceURI .ID}}" title="Open in your RustDesk app">App</a>
+          <a class="connect ghost-link" href="/device/{{.ID}}" title="Everything known about this device">Details</a>
+          {{if and $.CanSave (index $.Saved .ID)}}
+          <button class="ghost saved" data-action="forget"
+                  title="This device's password is saved — click to forget it">Password saved</button>
+          {{end}}
+        </div>
+      </li>
+      {{end}}
+    </ul>
+    <p class="updated">Updated <span id="updated">just now</span>.</p>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>{{end}}

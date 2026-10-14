@@ -1,0 +1,67 @@
+/* Presentation overrides for the bundled client, applied from outside it.
+   Loaded after its own stylesheet, so equal-specificity rules here win. */
+
+/* Upstream branding. This is a self-hosted console, not a CortenDesk-branded
+   product, so its wordmark is replaced with ours. Attribution is kept where it
+   belongs: the README credits the project, and LICENSE and NOTICE ship
+   alongside the bundle in the image.
+
+   The images need no rule — the bundle asks for /rdclient/logo.png, which this
+   app serves itself, so they already carry our own mark. */
+
+/* The toolbar is a three-column grid, brand | island | user. An earlier version
+   of this file hid the brand outright, which took its cell out of the grid and
+   left the island sitting in column one, flush left. Keeping the cell and
+   relabelling it is what re-centres the island. */
+.rd-tb-name {
+  font-size: 0; /* blanks the text and its nested accent span together */
+}
+.rd-tb-name::before {
+  content: "Rust Control Center";
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--rd-fg);
+}
+
+/* The same lock-up on the connect card. */
+.rd-wordmark {
+  font-size: 0;
+}
+.rd-wordmark::before {
+  content: "Rust Control Center";
+  font-size: clamp(24px, 5.5vw, 38px);
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: var(--rd-fg);
+}
+.rd-brand {
+  flex-wrap: wrap;
+}
+
+/* Upstream tints the card logo's shadow with its own accent. */
+.rd-logo {
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .45));
+}
+
+/* Room for our own "back to devices" button, which the compat script docks
+   into the toolbar's right-hand cell beside the avatar. Upstream drops that
+   cell on narrow screens; keep it for the button's sake and drop the avatar
+   instead, since the avatar is decoration and the button is navigation. */
+.rd-tb-user.rd-has-back {
+  gap: 10px;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  /* Narrow screens drop to two columns, so a third child would wrap onto a
+     second row rather than sit beside the island. Give it a column. */
+  #rd-toolbar.rd-has-back {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .rd-tb-user.rd-has-back {
+    display: flex;
+  }
+  .rd-tb-user.rd-has-back .rd-avatar {
+    display: none;
+  }
+}

@@ -305,7 +305,7 @@ stylesheet.
 
 **Both panels were built to float over a live desktop, so each lets a little of
 what is behind it show through — the file panel is 97% opaque, and the terminal
-dims and blurs its backdrop. With no desktop behind them that reveals the page
+dims and blurs its backdrop.** With no desktop behind them that reveals the page
 instead, so `static/standalone.css` overrides both to be opaque. It is loaded
 after their stylesheet and reuses their `--rd-*` tokens, so the override costs
 no upstream changes and follows their theme.

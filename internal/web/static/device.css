@@ -1,0 +1,147 @@
+/* The device detail page. Builds on app.css, which supplies the tokens, the
+   card-ish surfaces and the button shapes; everything here is specific to
+   showing one machine rather than a list of them. */
+
+main { max-width: 980px; }
+
+.back {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-bottom: 14px; padding: 5px 10px 5px 7px;
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); text-decoration: none; font-size: 13px;
+}
+.back:hover { color: var(--text); border-color: var(--muted); }
+
+.banner {
+  margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; font-size: 14px;
+  background: color-mix(in srgb, var(--muted) 12%, transparent);
+  color: var(--muted); border: 1px solid var(--border);
+}
+
+.card {
+  padding: 16px; margin-bottom: 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.card-head h2 { margin: 0; font-size: 15px; }
+.card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.head { display: grid; gap: 12px; }
+.head-main { display: flex; align-items: flex-start; gap: 12px; }
+.head .dot { margin-top: 7px; }
+.head.online .dot { background: var(--online); box-shadow: 0 0 0 3px color-mix(in srgb, var(--online) 22%, transparent); }
+.head h2 { margin: 0; font-size: 19px; }
+.head .actions { justify-content: flex-start; }
+.head .actions.secondary { border-top: 1px solid var(--border); padding-top: 12px; }
+button.ghost.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+button.ghost.danger:hover { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+
+/* --- the collection log ---------------------------------------------------
+   A collection takes several seconds — rendezvous, key exchange, login, then
+   the probe itself — and says so line by line, because a button that does
+   nothing visible for ten seconds reads as a button that did not work. */
+.progress {
+  list-style: none; margin: 0 0 12px; padding: 10px 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  font-size: 13px; color: var(--muted); max-height: 180px; overflow-y: auto;
+}
+.progress li { padding: 1px 0; }
+.progress li:last-child { color: var(--text); }
+.progress li.failed { color: var(--danger); }
+
+/* --- sections of facts --------------------------------------------------- */
+.intel-section { margin-top: 18px; }
+.intel-section > h3 {
+  margin: 0 0 8px; font-size: 13px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+}
+
+/* Label above value, wrapping into as many columns as fit. A fleet machine
+   reports a long tail of short facts, and a two-column table wastes the width
+   on a wide screen while crushing values on a narrow one. */
+.facts {
+  display: grid; gap: 10px 20px; margin: 0;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.facts div { min-width: 0; }
+.facts dt { font-size: 12px; color: var(--muted); }
+.facts dd {
+  margin: 1px 0 0; font-size: 14px;
+  overflow-wrap: anywhere; font-variant-numeric: tabular-nums;
+}
+.facts dd.wrap { font-variant-numeric: normal; }
+
+table.intel {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+table.intel th {
+  text-align: left; font-weight: 500; color: var(--muted);
+  font-size: 12px; padding: 0 10px 5px 0; white-space: nowrap;
+}
+table.intel td { padding: 5px 10px 5px 0; border-top: 1px solid var(--border); }
+table.intel td.name { font-variant-numeric: normal; overflow-wrap: anywhere; }
+table.intel td.num { text-align: right; }
+
+/* A usage bar reads faster than a percentage, and a nearly-full disk is the
+   single most actionable thing an inventory can tell you. */
+.bar {
+  position: relative; min-width: 90px; height: 16px; border-radius: 4px;
+  background: color-mix(in srgb, var(--muted) 18%, transparent); overflow: hidden;
+}
+.bar i {
+  position: absolute; inset: 0 auto 0 0; display: block;
+  background: var(--accent); border-radius: 4px;
+}
+.bar.warn i { background: #d08a2f; }
+.bar.full i { background: var(--danger); }
+.bar span {
+  position: relative; display: block; text-align: center;
+  font-size: 11px; line-height: 16px; color: var(--text);
+}
+
+.pill {
+  display: inline-block; padding: 1px 7px; border-radius: 999px;
+  font-size: 12px; border: 1px solid var(--border); color: var(--muted);
+}
+.pill.up { color: var(--online); border-color: color-mix(in srgb, var(--online) 40%, transparent); }
+.pill.down { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
+
+.intel-empty { margin: 0; color: var(--muted); max-width: 62ch; }
+.intel-empty + .intel-empty { margin-top: 8px; }
+
+.uptime-bar {
+  display: flex; height: 10px; border-radius: 5px; overflow: hidden;
+  background: var(--offline); margin: 4px 0 10px;
+}
+.uptime-bar i { display: block; height: 100%; }
+.uptime-bar i.up { background: var(--online); }
+
+@media (max-width: 560px) {
+  .head .actions { width: 100%; }
+}
+
+/* Links inside a fact value. The user-agent blue is close to unreadable on the
+   dark surface, and underlining every value would fight the grid, so they take
+   the accent and underline only on hover. */
+.facts a, table.intel a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.facts a:hover, table.intel a:hover {
+  border-bottom-color: currentColor;
+}
+
+/* The excerpt kept when a probe did not finish. Folded away by default: it is
+   evidence for whoever is diagnosing, not something to read every visit. */
+.probe-tail { margin: 8px 0 0; font-size: 13px; }
+.probe-tail summary { color: var(--muted); cursor: pointer; }
+.probe-tail pre {
+  margin: 8px 0 0; padding: 10px 12px; max-height: 220px; overflow: auto;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere;
+}
