@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/poller"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/poller"
 )
 
 func templateFuncs() template.FuncMap {

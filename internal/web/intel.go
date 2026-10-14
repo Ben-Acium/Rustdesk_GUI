@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/intel"
-	"github.com/bjones/rustdeskgui/internal/poller"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/intel"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/poller"
 )
 
 // maxReportBytes bounds a stored report. The probe output is already capped

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/store"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/store"
 )
 
 func TestHashAndVerifyPassword(t *testing.T) {

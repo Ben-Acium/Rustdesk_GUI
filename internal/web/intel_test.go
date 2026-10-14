@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/intel"
-	"github.com/bjones/rustdeskgui/internal/poller"
-	"github.com/bjones/rustdeskgui/internal/store"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/intel"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/poller"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/store"
 )
 
 const testPeerID = "123456789"

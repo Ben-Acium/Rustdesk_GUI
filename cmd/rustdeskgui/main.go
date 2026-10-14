@@ -26,13 +26,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/hbbs"
-	"github.com/bjones/rustdeskgui/internal/intel"
-	"github.com/bjones/rustdeskgui/internal/poller"
-	"github.com/bjones/rustdeskgui/internal/rdns"
-	"github.com/bjones/rustdeskgui/internal/rendezvous"
-	"github.com/bjones/rustdeskgui/internal/store"
-	"github.com/bjones/rustdeskgui/internal/web"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/hbbs"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/intel"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/poller"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/rdns"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/rendezvous"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/store"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/web"
 )
 
 type config struct {

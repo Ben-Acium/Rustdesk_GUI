@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/poller"
-	"github.com/bjones/rustdeskgui/internal/store"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/poller"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/store"
 )
 
 const testPassword = "test-password-123"

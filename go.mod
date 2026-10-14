@@ -1,4 +1,4 @@
-module github.com/bjones/rustdeskgui
+module github.com/Ben-Acium/Rustdesk_GUI
 
 go 1.27.1
 

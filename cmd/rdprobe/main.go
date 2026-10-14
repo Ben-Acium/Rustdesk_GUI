@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/rendezvous"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/rendezvous"
 )
 
 func main() {

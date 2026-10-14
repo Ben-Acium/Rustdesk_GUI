@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bjones/rustdeskgui/internal/hbbs"
-	"github.com/bjones/rustdeskgui/internal/rdns"
-	"github.com/bjones/rustdeskgui/internal/rendezvous"
-	"github.com/bjones/rustdeskgui/internal/store"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/hbbs"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/rdns"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/rendezvous"
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/store"
 )
 
 // Device is the joined view of one machine, as the UI shows it.
