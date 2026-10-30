@@ -261,6 +261,7 @@ func run(cfg config, log *slog.Logger) error {
 		SecretKey:       cfg.secretKey,
 		GeoURL:          cfg.geoURL,
 		InsecureCookies: cfg.httpListen != "",
+		HbbsDBPath:      cfg.hbbsDB,
 	})
 	if err != nil {
 		return err

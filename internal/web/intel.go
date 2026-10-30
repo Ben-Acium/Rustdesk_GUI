@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Ben-Acium/Rustdesk_GUI/internal/hbbs"
 	"github.com/Ben-Acium/Rustdesk_GUI/internal/intel"
 	"github.com/Ben-Acium/Rustdesk_GUI/internal/poller"
 )
@@ -35,13 +36,14 @@ func (s *Server) handleDevicePage(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy", s.webClient.csp())
 	}
 	s.render(w, "device.html", map[string]any{
-		"Device":    dev,
-		"Name":      displayName(dev),
-		"CSRF":      csrf,
-		"WebClient": s.webClient.Enabled(),
-		"SavedHash": s.savedHashFor(r, id),
-		"CanSave":   s.vault.enabled(),
-		"CanLocate": s.locator.Enabled(),
+		"Device":       dev,
+		"Name":         displayName(dev),
+		"CSRF":         csrf,
+		"WebClient":    s.webClient.Enabled(),
+		"SavedHash":    s.savedHashFor(r, id),
+		"CanSave":      s.vault.enabled(),
+		"CanLocate":    s.locator.Enabled(),
+		"CanRemovePeer": s.hbbsDBPath != "",
 	})
 }
 
@@ -254,6 +256,41 @@ func (s *Server) handleForgetDevice(w http.ResponseWriter, r *http.Request) {
 		s.log.Warn("refresh after forget failed", "error", err)
 	}
 	s.log.Info("device record erased", "peer_id", id)
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+}
+
+// handleRemovePeer deletes the device from hbbs's peer table and erases all
+// console records for it. Because hbbs caches peers in memory, the device will
+// re-register if the RustDesk client is still running on it; stop or uninstall
+// the client there for removal to stick.
+func (s *Server) handleRemovePeer(w http.ResponseWriter, r *http.Request) {
+	if !s.checkCSRF(r) {
+		writeJSONError(w, http.StatusForbidden, "invalid CSRF token")
+		return
+	}
+	if s.hbbsDBPath == "" {
+		writeJSONError(w, http.StatusNotFound, "peer removal is not configured")
+		return
+	}
+	id := r.PathValue("id")
+	if !s.knownDevice(id) {
+		writeJSONError(w, http.StatusNotFound, "unknown device")
+		return
+	}
+	if err := hbbs.DeletePeer(r.Context(), s.hbbsDBPath, id); err != nil {
+		s.log.Error("removing peer from hbbs failed", "peer_id", id, "error", err)
+		writeJSONError(w, http.StatusInternalServerError, "could not remove peer from server")
+		return
+	}
+	if err := s.store.ForgetDevice(r.Context(), id); err != nil {
+		s.log.Error("forgetting device after peer removal failed", "peer_id", id, "error", err)
+		writeJSONError(w, http.StatusInternalServerError, "peer removed from server but console records remain")
+		return
+	}
+	if err := s.poller.Poll(r.Context()); err != nil {
+		s.log.Warn("refresh after peer removal failed", "error", err)
+	}
+	s.log.Info("device removed from hbbs and console records erased", "peer_id", id)
 	writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 }
 

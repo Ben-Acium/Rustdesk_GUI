@@ -62,6 +62,25 @@ func Open(path string) (*Reader, error) {
 
 func (r *Reader) Close() error { return r.db.Close() }
 
+// DeletePeer removes a device from hbbs's peer table. Unlike the read
+// connection, this opens a writable connection because it modifies hbbs's data.
+//
+// Note: hbbs caches peers in memory. If the RustDesk client on the device is
+// still running, hbbs will re-register it the next time the client connects.
+// Stop or uninstall the client on the device for removal to be permanent.
+func DeletePeer(ctx context.Context, path, peerID string) error {
+	dsn := fmt.Sprintf("file:%s?_pragma=busy_timeout(5000)", url.PathEscape(path))
+	db, err := sql.Open("sqlite", dsn)
+	if err != nil {
+		return fmt.Errorf("hbbs: open %s for write: %w", path, err)
+	}
+	defer db.Close()
+	if _, err := db.ExecContext(ctx, `delete from peer where id = ?`, peerID); err != nil {
+		return fmt.Errorf("hbbs: delete peer %s: %w", peerID, err)
+	}
+	return nil
+}
+
 // peerInfo mirrors the JSON written into peer.info by the OSS server.
 type peerInfo struct {
 	IP string `json:"ip"`

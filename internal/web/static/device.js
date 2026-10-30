@@ -574,6 +574,21 @@
     }
   }
 
+  async function removePeer() {
+    if (!confirm(
+      "Remove this device from the RustDesk server?\n\n" +
+      "This deletes it from hbbs's peer table and erases all console records. " +
+      "If the RustDesk client is still running on the device, hbbs will re-register it " +
+      "the next time the client connects. Stop or uninstall the client on the device " +
+      "for removal to stick.")) return;
+    try {
+      await api(`/api/devices/${encodeURIComponent(peerId)}/peer`, { method: "DELETE" });
+      location.href = "/";
+    } catch (err) {
+      alert(`Could not remove: ${err.message}`);
+    }
+  }
+
   async function forgetDevice() {
     if (!confirm(
       "Erase this device's name, note, presence history, saved password and collected intel?\n\n" +
@@ -593,6 +608,7 @@
     if (btn.dataset.action === "rename") openRename();
     else if (btn.dataset.action === "archive") toggleArchive();
     else if (btn.dataset.action === "forget") forgetDevice();
+    else if (btn.dataset.action === "remove-peer") removePeer();
   });
 
   runBtn?.addEventListener("click", collectIntel);

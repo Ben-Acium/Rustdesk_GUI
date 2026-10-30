@@ -46,6 +46,8 @@ type Server struct {
 	// insecureCookies drops the Secure flag so one session works across both
 	// the HTTPS and plain-HTTP listeners. Set only when an HTTP listener runs.
 	insecureCookies bool
+	// hbbsDBPath, when set, enables the "Remove from server" feature.
+	hbbsDBPath string
 
 	// Login throttle. One account, so a single counter is enough; it exists to
 	// make online guessing impractical, not to be a general rate limiter.
@@ -71,6 +73,10 @@ type Config struct {
 	// plain-HTTP listener is enabled, otherwise the cookie set over HTTPS is
 	// never sent to it.
 	InsecureCookies bool
+	// HbbsDBPath is the filesystem path to hbbs's db_v2.sqlite3. Set to enable
+	// the "Remove from server" feature, which deletes a peer row from hbbs's
+	// database. Empty disables the button.
+	HbbsDBPath string
 }
 
 func New(c Config) (*Server, error) {
@@ -93,7 +99,7 @@ func New(c Config) (*Server, error) {
 		poller: c.Poller, store: c.Store, log: c.Logger,
 		passwordHash: c.PasswordHash, secret: c.Secret, tmpl: tmpl,
 		webClient: c.WebClient, vault: v, locator: loc,
-		insecureCookies: c.InsecureCookies,
+		insecureCookies: c.InsecureCookies, hbbsDBPath: c.HbbsDBPath,
 	}, nil
 }
 
@@ -117,6 +123,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PUT /api/devices/{id}/intel", s.requireAuthAPI(s.handlePutIntel))
 	mux.HandleFunc("DELETE /api/devices/{id}/intel", s.requireAuthAPI(s.handleDeleteIntel))
 	mux.HandleFunc("POST /api/devices/{id}/archive", s.requireAuthAPI(s.handleArchive))
+	mux.HandleFunc("DELETE /api/devices/{id}/peer", s.requireAuthAPI(s.handleRemovePeer))
 	mux.HandleFunc("DELETE /api/devices/{id}", s.requireAuthAPI(s.handleForgetDevice))
 	mux.HandleFunc("GET /healthz", s.handleHealth)
 

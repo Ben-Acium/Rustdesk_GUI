@@ -52,6 +52,7 @@
         <button class="ghost" data-action="rename">Rename</button>
         <button class="ghost" data-action="archive">{{if .Device.Archived}}Restore{{else}}Archive{{end}}</button>
         <button class="ghost danger" data-action="forget">Erase record</button>
+        {{if .CanRemovePeer}}<button class="ghost danger" data-action="remove-peer">Remove from server</button>{{end}}
       </div>
     </section>
 
