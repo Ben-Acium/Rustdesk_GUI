@@ -250,6 +250,11 @@ func (s *Server) handleForgetDevice(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, "could not forget")
 		return
 	}
+	// Archive so the device stays hidden from the main list after the next poll
+	// re-adds it from hbbs's database.
+	if err := s.store.SetArchived(r.Context(), id, true); err != nil {
+		s.log.Warn("archiving after forget failed", "peer_id", id, "error", err)
+	}
 	if err := s.poller.Poll(r.Context()); err != nil {
 		s.log.Warn("refresh after forget failed", "error", err)
 	}

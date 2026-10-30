@@ -577,8 +577,9 @@
   async function forgetDevice() {
     if (!confirm(
       "Erase this device's name, note, presence history, saved password and collected intel?\n\n" +
-      "The device itself is not affected and will reappear in the list, unnamed, " +
-      "the next time the server sees it. Archive it instead to hide it for good.")) return;
+      "The device itself is not removed from the RustDesk server. It will be archived " +
+      "(hidden from the list) so it does not immediately reappear. You can restore it from " +
+      "Show archived if needed.")) return;
     try {
       await api(`/api/devices/${encodeURIComponent(peerId)}`, { method: "DELETE" });
       location.href = "/";

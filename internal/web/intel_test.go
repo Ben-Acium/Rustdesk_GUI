@@ -288,8 +288,8 @@ func TestForgetDeviceErasesEveryRecord(t *testing.T) {
 	if box, _ := s.store.DeviceSecret(ctx, testPeerID); box != nil {
 		t.Error("the saved credential survived")
 	}
-	if ids, _ := s.store.ArchivedIDs(ctx); len(ids) != 0 {
-		t.Error("the archive flag survived")
+	if ids, _ := s.store.ArchivedIDs(ctx); !ids[testPeerID] {
+		t.Error("device was not archived after erase")
 	}
 }
 
